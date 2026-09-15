@@ -15,31 +15,39 @@ final class ExerciseService {
         guard let url = URL(string: "\(baseURL)/exercises") else {
             throw NetworkError.invalidURL
         }
-        
+
         return url
     }
 
     private func makeRequest(url: URL) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
-        
+
         return request
     }
-    
-    func fetchExercisesData() async throws -> Data {
+
+    func fetchExercises() async throws -> [Exercise] {
         let url = try makeExercisesURL()
         let request = makeRequest(url: url)
-        
+
         let (data, response) = try await URLSession.shared.data(for: request)
-        
+
         guard let httpResponse = response as? HTTPURLResponse else {
             throw NetworkError.invalidResponse
         }
         guard (200...299).contains(httpResponse.statusCode) else {
             throw NetworkError.invalidStatusCode
         }
-        
-        return data
+        do {
+            let response = try JSONDecoder().decode(
+                ExerciseResponse.self,
+                from: data
+            )
+
+            return response.data
+        } catch {
+            throw NetworkError.decodingFailed
+        }
     }
 
 }
