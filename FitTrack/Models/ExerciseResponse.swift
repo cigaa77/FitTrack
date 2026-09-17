@@ -15,5 +15,6 @@ struct Meta: Decodable {
     let total: Int
     let hasNextPage: Bool
     let hasPreviousPage: Bool
-    let nextCursor: String
+    let nextCursor: String?
+    let previousCursor: String?
 }
